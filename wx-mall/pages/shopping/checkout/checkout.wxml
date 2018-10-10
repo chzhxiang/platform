@@ -2,12 +2,13 @@
     <view class="address-box">
         <view class="address-item" bindtap="selectAddress" wx:if="{{1 > 0}}">
             <view class="l">
-                <text class="name">{{checkedAddress.userName}}</text>
+                <text class="name" wx:if="{{checkedAddress.userName}}">{{checkedAddress.userName}}</text>
+                <text class="name" wx:else>添加地址</text>
                 <text class="default" wx:if="{{checkedAddress.is_default === 1}}">默认</text>
             </view>
             <view class="m">
-                <text class="mobile">{{checkedAddress.telNumber}}</text>
-                <text class="address">{{checkedAddress.full_region+checkedAddress.detailInfo}}</text>
+                <text class="mobile" wx:if="{{checkedAddress.telNumber}}">{{checkedAddress.telNumber}}</text>
+                <text class="address" wx:if="{{checkedAddress.detailInfo}}">{{checkedAddress.full_region+checkedAddress.detailInfo}}</text>
             </view>
             <view class="r">
                 <image src="/static/images/address_right.png"></image>
