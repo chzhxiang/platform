@@ -10,7 +10,6 @@ import com.platform.service.ApiUserService;
 import com.platform.service.TokenService;
 import com.platform.util.ApiBaseAction;
 import com.platform.util.ApiUserUtils;
-import com.platform.util.CommonUtil;
 import com.platform.utils.CharUtil;
 import com.platform.utils.R;
 import com.platform.validator.Assert;
@@ -98,10 +97,10 @@ public class ApiAuthController extends ApiBaseAction {
             return toResponsFail("登录失败");
         }
         //验证用户信息完整性
-        String sha1 = CommonUtil.getSha1(fullUserInfo.getRawData() + sessionData.getString("session_key"));
-        if (!fullUserInfo.getSignature().equals(sha1)) {
-            return toResponsFail("登录失败");
-        }
+//        String sha1 = CommonUtil.getSha1(fullUserInfo.getRawData() + sessionData.getString("session_key"));
+//        if (!fullUserInfo.getSignature().equals(sha1)) {
+//            return toResponsFail("登录失败");
+//        }
         Date nowTime = new Date();
         UserVo userVo = userService.queryByOpenId(sessionData.getString("openid"));
         if (null == userVo) {
