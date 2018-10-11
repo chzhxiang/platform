@@ -15,6 +15,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,6 +41,12 @@ public class SysOssController {
     private SysConfigService sysConfigService;
 
     private final static String KEY = Constant.CLOUD_STORAGE_CONFIG_KEY;
+
+    @Value("${file.path}")
+    private String filePath;
+
+    @Value("${platfrom.address}")
+    private String platfromAddress;
 
     private Logger logger = LoggerFactory.getLogger(SysOssController.class);
 
@@ -118,8 +125,6 @@ public class SysOssController {
         if (file.isEmpty()) {
             throw new RRException("上传文件不能为空");
         }
-        //图片服务器路径
-        String file_path = "/app/programs/tomcat/webapps/picFile/";
         //原始文件名   
         String originalFileName = file.getOriginalFilename();
 
@@ -127,7 +132,7 @@ public class SysOssController {
         String newFileName = UUID.randomUUID() + originalFileName.substring(originalFileName.lastIndexOf("."));
 
         //创建新文件，路径为：图片服务器路径+新文件名   
-        String realPath = file_path + newFileName;
+        String realPath = filePath + newFileName;
         File newFile = new File(realPath);
 
         //将内存中的数据写入磁盘   
@@ -141,7 +146,7 @@ public class SysOssController {
 
         //保存文件信息
         SysOssEntity ossEntity = new SysOssEntity();
-        String url = "/file/fileUpload/" + newFileName;
+        String url = platfromAddress + "/file/fileUpload/" + newFileName;
         ossEntity.setUrl(url);
         ossEntity.setCreateDate(new Date());
         sysOssService.save(ossEntity);
