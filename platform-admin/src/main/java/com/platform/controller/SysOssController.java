@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.platform.annotation.SysLog;
 import com.platform.entity.SysOssEntity;
 import com.platform.oss.CloudStorageConfig;
-import com.platform.oss.OSSFactory;
 import com.platform.service.SysConfigService;
 import com.platform.service.SysOssService;
 import com.platform.utils.*;
@@ -13,6 +12,8 @@ import com.platform.validator.group.AliyunGroup;
 import com.platform.validator.group.QcloudGroup;
 import com.platform.validator.group.QiniuGroup;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,10 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.util.*;
 
 /**
  * 文件上传Controller
@@ -36,11 +35,13 @@ import java.util.Map;
 @RequestMapping("sys/oss")
 public class SysOssController {
     @Autowired
-    private SysOssService sysOssService;
+    private SysOssService    sysOssService;
     @Autowired
     private SysConfigService sysConfigService;
 
     private final static String KEY = Constant.CLOUD_STORAGE_CONFIG_KEY;
+
+    private Logger logger = LoggerFactory.getLogger(SysOssController.class);
 
     /**
      * 列表
@@ -117,11 +118,30 @@ public class SysOssController {
         if (file.isEmpty()) {
             throw new RRException("上传文件不能为空");
         }
+        //图片服务器路径
+        String file_path = "/app/programs/tomcat/webapps/picFile/";
+        //原始文件名   
+        String originalFileName = file.getOriginalFilename();
+
+        //新文件名，添加原始文件名后缀   
+        String newFileName = UUID.randomUUID() + originalFileName.substring(originalFileName.lastIndexOf("."));
+
+        //创建新文件，路径为：图片服务器路径+新文件名   
+        String realPath = file_path + newFileName;
+        File newFile = new File(realPath);
+
+        //将内存中的数据写入磁盘   
+        file.transferTo(newFile);
+        // 将新文件名写入product中   
+
+        // 文件路径
+
         //上传文件
-        String url = OSSFactory.build().upload(file);
+//        String url = OSSFactory.build().upload(file);
 
         //保存文件信息
         SysOssEntity ossEntity = new SysOssEntity();
+        String url = "/file/fileUpload/" + newFileName;
         ossEntity.setUrl(url);
         ossEntity.setCreateDate(new Date());
         sysOssService.save(ossEntity);
